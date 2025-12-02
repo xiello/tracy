@@ -1,0 +1,79 @@
+{
+  "name": "tracy",
+  "version": "1.0.0",
+  "description": "AI-powered voice-enabled expense and income tracking application",
+  "main": "dist/main/index.js",
+  "scripts": {
+    "dev": "concurrently \"npm run dev:main\" \"npm run dev:renderer\"",
+    "dev:main": "tsc -p tsconfig.main.json --watch",
+    "dev:renderer": "vite",
+    "build": "npm run build:main && npm run build:renderer",
+    "build:main": "tsc -p tsconfig.main.json",
+    "build:renderer": "vite build",
+    "start": "electron .",
+    "dist": "npm run build && electron-builder",
+    "lint": "eslint src --ext .ts,.tsx",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@ai-sdk/anthropic": "^3.0.0-beta.70",
+    "@ai-sdk/openai": "^3.0.0-beta.76",
+    "@ai-sdk/openai-compatible": "^2.0.0-beta.41",
+    "ai": "^6.0.0-beta.128",
+    "better-sqlite3": "^11.6.0",
+    "chart.js": "^4.4.6",
+    "date-fns": "^4.1.0",
+    "electron-store": "^10.0.0",
+    "framer-motion": "^11.12.0",
+    "lucide-react": "^0.460.0",
+    "react": "^18.3.1",
+    "react-chartjs-2": "^5.2.0",
+    "react-dom": "^18.3.1",
+    "uuid": "^11.0.3",
+    "zod": "^4.1.13",
+    "zustand": "^5.0.1"
+  },
+  "devDependencies": {
+    "@types/better-sqlite3": "^7.6.12",
+    "@types/node": "^22.9.3",
+    "@types/react": "^18.3.12",
+    "@types/react-dom": "^18.3.1",
+    "@types/uuid": "^10.0.0",
+    "@typescript-eslint/eslint-plugin": "^8.15.0",
+    "@typescript-eslint/parser": "^8.15.0",
+    "@vitejs/plugin-react": "^4.3.3",
+    "autoprefixer": "^10.4.20",
+    "concurrently": "^9.1.0",
+    "electron": "^33.2.0",
+    "electron-builder": "^25.1.8",
+    "electron-rebuild": "^3.2.9",
+    "eslint": "^9.15.0",
+    "postcss": "^8.4.49",
+    "tailwindcss": "^3.4.15",
+    "typescript": "^5.7.2",
+    "vite": "^6.0.1",
+    "vite-plugin-electron": "^0.28.8"
+  },
+  "build": {
+    "appId": "com.tracy.app",
+    "productName": "Tracy",
+    "mac": {
+      "category": "public.app-category.finance",
+      "icon": "resources/icon.icns",
+      "hardenedRuntime": true,
+      "gatekeeperAssess": false,
+      "entitlements": "resources/entitlements.mac.plist",
+      "entitlementsInherit": "resources/entitlements.mac.plist",
+      "extendInfo": {
+        "NSMicrophoneUsageDescription": "Tracy needs microphone access for voice input to add transactions hands-free."
+      }
+    },
+    "files": [
+      "dist/**/*",
+      "resources/**/*"
+    ],
+    "directories": {
+      "output": "release"
+    }
+  }
+}
