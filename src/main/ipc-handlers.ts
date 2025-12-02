@@ -1,11 +1,12 @@
 import { IpcMain, dialog, nativeTheme } from 'electron';
 import { Database } from './database';
 import { AIService } from './ai-service';
+import { SyncService } from './sync-service';
 import fs from 'fs';
 import path from 'path';
 import { app } from 'electron';
 
-export function setupIpcHandlers(ipcMain: IpcMain, db: Database, aiService: AIService) {
+export function setupIpcHandlers(ipcMain: IpcMain, db: Database, aiService: AIService, syncService?: SyncService) {
   // Transaction handlers
   ipcMain.handle('db:getTransactions', (_event, filters) => {
     return db.getTransactions(filters);
@@ -245,4 +246,30 @@ export function setupIpcHandlers(ipcMain: IpcMain, db: Database, aiService: AISe
       return false;
     }
   });
+
+  // Sync handlers
+  if (syncService) {
+    ipcMain.handle('sync:getConfig', () => {
+      return syncService.getConfig();
+    });
+
+    ipcMain.handle('sync:setConfig', (_event, config) => {
+      syncService.setConfig(config);
+      return syncService.getConfig();
+    });
+
+    ipcMain.handle('sync:now', async () => {
+      return await syncService.sync();
+    });
+
+    ipcMain.handle('sync:startAuto', (_event, intervalMs) => {
+      syncService.startAutoSync(intervalMs || 60000);
+      return true;
+    });
+
+    ipcMain.handle('sync:stopAuto', () => {
+      syncService.stopAutoSync();
+      return true;
+    });
+  }
 }

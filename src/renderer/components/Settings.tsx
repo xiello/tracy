@@ -7,9 +7,21 @@ import {
   Upload,
   Shield,
   RefreshCw,
-  ChevronDown
+  ChevronDown,
+  MessageCircle,
+  Smartphone,
+  Link,
+  Check,
+  X
 } from 'lucide-react';
 import { useAppStore } from '../stores/appStore';
+
+interface SyncConfig {
+  apiUrl: string;
+  deviceId: string;
+  lastSyncAt: string;
+  syncEnabled: boolean;
+}
 
 interface OllamaModel {
   name: string;
@@ -22,6 +34,64 @@ export default function Settings() {
   const [ollamaStatus, setOllamaStatus] = useState<'checking' | 'online' | 'offline'>('checking');
   const [ollamaModels, setOllamaModels] = useState<OllamaModel[]>([]);
   const [isLoadingModels, setIsLoadingModels] = useState(false);
+  const [syncConfig, setSyncConfig] = useState<SyncConfig | null>(null);
+  const [isSyncing, setIsSyncing] = useState(false);
+  const [syncResult, setSyncResult] = useState<{ added: number; updated: number } | null>(null);
+  const [backendStatus, setBackendStatus] = useState<'checking' | 'online' | 'offline'>('checking');
+
+  // Load sync config on mount
+  useEffect(() => {
+    loadSyncConfig();
+  }, []);
+
+  async function loadSyncConfig() {
+    try {
+      const config = await window.electronAPI.getSyncConfig() as SyncConfig;
+      setSyncConfig(config);
+      checkBackendStatus(config.apiUrl);
+    } catch (error) {
+      console.error('Failed to load sync config:', error);
+    }
+  }
+
+  async function checkBackendStatus(apiUrl: string) {
+    try {
+      const response = await fetch(`${apiUrl}/health`);
+      setBackendStatus(response.ok ? 'online' : 'offline');
+    } catch {
+      setBackendStatus('offline');
+    }
+  }
+
+  async function handleSyncNow() {
+    setIsSyncing(true);
+    setSyncResult(null);
+    try {
+      const result = await window.electronAPI.syncNow();
+      setSyncResult(result);
+      loadSyncConfig(); // Refresh last sync time
+    } catch (error) {
+      console.error('Sync failed:', error);
+    }
+    setIsSyncing(false);
+  }
+
+  async function toggleSync(enabled: boolean) {
+    if (!syncConfig) return;
+    await window.electronAPI.setSyncConfig({ syncEnabled: enabled });
+    if (enabled) {
+      await window.electronAPI.startAutoSync(60000);
+    } else {
+      await window.electronAPI.stopAutoSync();
+    }
+    loadSyncConfig();
+  }
+
+  async function updateApiUrl(url: string) {
+    await window.electronAPI.setSyncConfig({ apiUrl: url });
+    checkBackendStatus(url);
+    loadSyncConfig();
+  }
 
   // Check Ollama status on mount
   useEffect(() => {
@@ -296,6 +366,121 @@ export default function Settings() {
               <Upload size={18} />
               Import
             </button>
+          </div>
+        </div>
+      </section>
+
+      {/* Integrations & Sync */}
+      <section className="p-6 glass-card rounded-xl">
+        <div className="flex items-center gap-3 mb-4">
+          <Link size={20} className="text-mac-accent-purple" />
+          <h2 className="text-lg font-medium">Integrations & Sync</h2>
+        </div>
+
+        <div className="space-y-4">
+          {/* Sync Toggle */}
+          <div className="flex items-center justify-between">
+            <div>
+              <p className="font-medium">Cloud Sync</p>
+              <p className="text-sm text-white/50">
+                Sync with Telegram bot & Spotlight
+              </p>
+            </div>
+            <button
+              onClick={() => toggleSync(!syncConfig?.syncEnabled)}
+              className={`w-12 h-7 rounded-full transition-colors ${
+                syncConfig?.syncEnabled ? 'bg-mac-accent-green' : 'bg-white/20'
+              }`}
+            >
+              <div className={`w-5 h-5 bg-white rounded-full shadow transform transition-transform ${
+                syncConfig?.syncEnabled ? 'translate-x-6' : 'translate-x-1'
+              }`} />
+            </button>
+          </div>
+
+          {/* Backend URL */}
+          <div className="p-4 bg-white/5 rounded-xl space-y-3">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <Cloud size={16} />
+                <span className="font-medium">Sync Server</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <span className={`w-2 h-2 rounded-full ${
+                  backendStatus === 'online' ? 'bg-mac-accent-green' : 
+                  backendStatus === 'offline' ? 'bg-mac-accent-red' : 'bg-mac-accent-orange'
+                }`} />
+                <span className="text-sm capitalize">{backendStatus}</span>
+              </div>
+            </div>
+
+            <div>
+              <label className="block text-sm text-white/70 mb-1">Backend URL</label>
+              <input
+                type="text"
+                value={syncConfig?.apiUrl || 'http://localhost:3847'}
+                onChange={(e) => updateApiUrl(e.target.value)}
+                placeholder="http://localhost:3847"
+                className="w-full px-4 py-2 bg-white/5 border border-white/10 rounded-lg text-white placeholder-white/30"
+              />
+            </div>
+
+            <div className="flex items-center justify-between text-sm">
+              <span className="text-white/50">
+                Last sync: {syncConfig?.lastSyncAt ? new Date(syncConfig.lastSyncAt).toLocaleString() : 'Never'}
+              </span>
+              <button
+                onClick={handleSyncNow}
+                disabled={isSyncing || backendStatus !== 'online'}
+                className="flex items-center gap-2 px-3 py-1.5 bg-mac-accent-blue text-white rounded-lg text-sm disabled:opacity-50"
+              >
+                <RefreshCw size={14} className={isSyncing ? 'animate-spin' : ''} />
+                {isSyncing ? 'Syncing...' : 'Sync Now'}
+              </button>
+            </div>
+
+            {syncResult && (
+              <div className="flex items-center gap-2 text-sm text-mac-accent-green">
+                <Check size={14} />
+                Synced! {syncResult.added} new transactions
+              </div>
+            )}
+
+            <div className="pt-2 border-t border-white/10 text-xs text-white/40">
+              Device ID: <code className="bg-white/10 px-1 rounded">{syncConfig?.deviceId?.slice(0, 8)}...</code>
+            </div>
+          </div>
+
+          {/* Telegram Setup */}
+          <div className="p-4 bg-white/5 rounded-xl">
+            <div className="flex items-center gap-2 mb-3">
+              <MessageCircle size={16} className="text-[#0088cc]" />
+              <span className="font-medium">Telegram Bot</span>
+            </div>
+            <p className="text-sm text-white/50 mb-3">
+              Send expenses via Telegram! Text or voice messages.
+            </p>
+            <div className="space-y-2 text-sm text-white/70">
+              <p>1. Start the backend: <code className="bg-white/10 px-1 rounded">cd backend && npm run bot</code></p>
+              <p>2. Create bot with <a href="https://t.me/botfather" target="_blank" className="text-mac-accent-blue">@BotFather</a></p>
+              <p>3. Add your bot token to <code className="bg-white/10 px-1 rounded">backend/.env</code></p>
+              <p>4. Send messages like: <code className="bg-white/10 px-1 rounded">-30 gas</code> or voice notes!</p>
+            </div>
+          </div>
+
+          {/* CLI Setup */}
+          <div className="p-4 bg-white/5 rounded-xl">
+            <div className="flex items-center gap-2 mb-3">
+              <Smartphone size={16} className="text-mac-accent-orange" />
+              <span className="font-medium">Quick Add (Terminal/Spotlight)</span>
+            </div>
+            <p className="text-sm text-white/50 mb-3">
+              Add expenses from terminal or Alfred/Raycast.
+            </p>
+            <div className="space-y-2 text-sm text-white/70">
+              <p>Install CLI: <code className="bg-white/10 px-1 rounded">cd scripts && ./install-cli.sh</code></p>
+              <p>Usage: <code className="bg-white/10 px-1 rounded">tracy -30 gas at Shell</code></p>
+            </div>
           </div>
         </div>
       </section>

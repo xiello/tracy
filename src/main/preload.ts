@@ -52,6 +52,13 @@ contextBridge.exposeInMainWorld('electronAPI', {
   
   // Reset all data
   resetAllData: () => ipcRenderer.invoke('db:resetAllData'),
+  
+  // Sync operations
+  getSyncConfig: () => ipcRenderer.invoke('sync:getConfig'),
+  setSyncConfig: (config: unknown) => ipcRenderer.invoke('sync:setConfig', config),
+  syncNow: () => ipcRenderer.invoke('sync:now'),
+  startAutoSync: (intervalMs: number) => ipcRenderer.invoke('sync:startAuto', intervalMs),
+  stopAutoSync: () => ipcRenderer.invoke('sync:stopAuto'),
 });
 
 // Type declarations for renderer
@@ -84,6 +91,11 @@ export interface ElectronAPI {
   exportData: (format: string) => Promise<string>;
   importData: (filePath: string) => Promise<boolean>;
   resetAllData: () => Promise<boolean>;
+  getSyncConfig: () => Promise<unknown>;
+  setSyncConfig: (config: unknown) => Promise<unknown>;
+  syncNow: () => Promise<{ added: number; updated: number }>;
+  startAutoSync: (intervalMs: number) => Promise<boolean>;
+  stopAutoSync: () => Promise<boolean>;
 }
 
 declare global {

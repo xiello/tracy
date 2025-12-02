@@ -2,11 +2,13 @@ import { app, BrowserWindow, ipcMain, nativeTheme, systemPreferences } from 'ele
 import path from 'path';
 import { Database } from './database';
 import { AIService } from './ai-service';
+import { SyncService } from './sync-service';
 import { setupIpcHandlers } from './ipc-handlers';
 
 let mainWindow: BrowserWindow | null = null;
 let database: Database | null = null;
 let aiService: AIService | null = null;
+let syncService: SyncService | null = null;
 
 const isDev = process.env.NODE_ENV === 'development';
 
@@ -43,9 +45,16 @@ async function createWindow() {
   // Initialize services
   database = new Database();
   aiService = new AIService(database);
+  syncService = new SyncService(database);
 
   // Setup IPC handlers
-  setupIpcHandlers(ipcMain, database, aiService);
+  setupIpcHandlers(ipcMain, database, aiService, syncService);
+  
+  // Start auto-sync if enabled
+  const syncConfig = syncService.getConfig();
+  if (syncConfig.syncEnabled) {
+    syncService.startAutoSync(60000); // Sync every minute
+  }
 
   if (isDev) {
     mainWindow.loadURL('http://localhost:5173');
