@@ -6,12 +6,14 @@ import { format, startOfMonth, endOfMonth } from 'date-fns';
 import type { Budget, Category } from '../../shared/types';
 
 const BUDGET_PRESETS = [
-  { name: 'Groceries', amount: 500, category: 'Groceries' },
-  { name: 'Rent/Mortgage', amount: 720, category: 'Rent/Mortgage' },
-  { name: 'Car Payment', amount: 163.58, category: 'Car Maintenance' },
+  { name: 'Groceries', amount: 400, category: 'Groceries' },
+  { name: 'Rent/Mortgage', amount: 1000, category: 'Rent/Mortgage' },
+  { name: 'Gas', amount: 150, category: 'Gas' },
   { name: 'Dining Out', amount: 200, category: 'Dining Out' },
   { name: 'Entertainment', amount: 100, category: 'Entertainment' },
   { name: 'Utilities', amount: 150, category: 'Utilities' },
+  { name: 'Shopping', amount: 200, category: 'Shopping' },
+  { name: 'Healthcare', amount: 100, category: 'Healthcare' },
 ];
 
 export default function Budgets() {

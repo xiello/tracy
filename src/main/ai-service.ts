@@ -130,16 +130,24 @@ Return structured data.`,
 
     // Category detection
     const categoryKeywords: Record<string, string[]> = {
-      'Groceries': ['grocery', 'groceries', 'supermarket', 'food', 'whole foods', 'trader', 'aldi', 'lidl'],
-      'Dining Out': ['restaurant', 'lunch', 'dinner', 'coffee', 'cafe', 'starbucks', 'mcdonald'],
-      'Transportation': ['uber', 'lyft', 'taxi', 'gas', 'fuel', 'parking', 'transit', 'metro', 'bus'],
+      'Gas': ['gas', 'fuel', 'petrol', 'diesel', 'gasoline', 'shell', 'bp', 'esso', 'tank', 'filling station'],
+      'Public Transit': ['bus', 'train', 'metro', 'subway', 'tram', 'transit', 'ticket'],
+      'Parking': ['parking', 'park'],
+      'Car Maintenance': ['car wash', 'oil change', 'tire', 'mechanic', 'repair', 'service', 'car service'],
+      'Groceries': ['grocery', 'groceries', 'supermarket', 'lidl', 'aldi', 'tesco', 'kaufland', 'billa', 'whole foods', 'trader'],
+      'Dining Out': ['restaurant', 'lunch', 'dinner', 'breakfast', 'coffee', 'cafe', 'starbucks', 'mcdonald', 'pizza', 'burger', 'food', 'eat'],
       'Rent/Mortgage': ['rent', 'mortgage', 'lease'],
-      'Utilities': ['electric', 'water', 'gas bill', 'utility', 'internet', 'phone'],
-      'Entertainment': ['movie', 'netflix', 'spotify', 'game', 'concert', 'tickets'],
-      'Shopping': ['amazon', 'shopping', 'clothes', 'target', 'walmart', 'ebay'],
-      'Healthcare': ['doctor', 'pharmacy', 'medicine', 'hospital', 'dental'],
-      'Salary': ['salary', 'paycheck', 'got paid', 'wage'],
+      'Utilities': ['electric', 'electricity', 'water', 'utility', 'internet', 'phone', 'bill'],
+      'Entertainment': ['movie', 'netflix', 'spotify', 'game', 'concert', 'tickets', 'cinema', 'theater', 'bar', 'club'],
+      'Shopping': ['amazon', 'shopping', 'clothes', 'target', 'walmart', 'ebay', 'ikea', 'zara'],
+      'Healthcare': ['doctor', 'pharmacy', 'medicine', 'hospital', 'dental', 'dentist', 'health'],
+      'Insurance': ['insurance'],
+      'Subscriptions': ['subscription', 'membership', 'premium', 'plan'],
+      'Salary': ['salary', 'paycheck', 'got paid', 'wage', 'income'],
       'Freelance': ['freelance', 'client', 'project', 'invoice'],
+      'Investments': ['invest', 'dividend', 'stock', 'crypto', 'trading'],
+      'Gifts': ['gift', 'present', 'birthday'],
+      'Refund': ['refund', 'return', 'cashback'],
     };
 
     let category = type === 'income' ? 'Other Income' : 'Other';

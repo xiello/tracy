@@ -105,6 +105,9 @@ export default function VoiceInput() {
       recognitionInstance.onerror = (event: SpeechRecognitionErrorEvent) => {
         console.error('Speech recognition error:', event.error);
         setIsListening(false);
+        if (event.error === 'network') {
+          alert('Speech recognition requires internet. Please check your connection.');
+        }
       };
 
       setRecognition(recognitionInstance);

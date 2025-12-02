@@ -58,8 +58,14 @@ export default function QuickInput() {
         setMicError('Microphone permission denied. Go to System Preferences > Privacy & Security > Microphone and enable for Tracy.');
       } else if (error === 'no-speech') {
         setMicError('No speech detected. Try again.');
+      } else if (error === 'network') {
+        setMicError('Speech recognition requires internet connection. Check your network and try again.');
+      } else if (error === 'audio-capture') {
+        setMicError('No microphone found. Please connect a microphone.');
+      } else if (error === 'aborted') {
+        // User cancelled, no error to show
       } else {
-        setMicError(`Mic error: ${error}`);
+        setMicError(`Speech error: ${error}. Try typing instead.`);
       }
     };
 
@@ -147,14 +153,24 @@ export default function QuickInput() {
       let category = categories.find(c => c.type === preview.type);
       
       const categoryKeywords: Record<string, string[]> = {
-        'Groceries': ['grocery', 'food', 'supermarket', 'market'],
-        'Dining Out': ['lunch', 'dinner', 'breakfast', 'restaurant', 'cafe', 'coffee', 'eat'],
-        'Transportation': ['uber', 'taxi', 'bus', 'train', 'gas', 'fuel', 'parking'],
-        'Entertainment': ['movie', 'netflix', 'game', 'concert', 'bar', 'club'],
-        'Shopping': ['amazon', 'shop', 'clothes', 'buy'],
-        'Utilities': ['electric', 'water', 'internet', 'phone', 'bill'],
-        'Salary': ['salary', 'paycheck', 'wage'],
-        'Freelance': ['freelance', 'project', 'client'],
+        'Gas': ['gas', 'fuel', 'petrol', 'diesel', 'gasoline', 'shell', 'bp', 'esso', 'tank'],
+        'Public Transit': ['bus', 'train', 'metro', 'subway', 'tram', 'transit'],
+        'Parking': ['parking', 'park'],
+        'Car Maintenance': ['car wash', 'oil change', 'tire', 'mechanic', 'repair', 'service'],
+        'Groceries': ['grocery', 'groceries', 'supermarket', 'market', 'lidl', 'aldi', 'tesco', 'kaufland', 'billa'],
+        'Dining Out': ['lunch', 'dinner', 'breakfast', 'restaurant', 'cafe', 'coffee', 'eat', 'food', 'pizza', 'burger', 'sushi'],
+        'Entertainment': ['movie', 'netflix', 'spotify', 'game', 'concert', 'bar', 'club', 'cinema', 'theater'],
+        'Shopping': ['amazon', 'shop', 'clothes', 'buy', 'ikea', 'zara', 'hm'],
+        'Utilities': ['electric', 'electricity', 'water', 'internet', 'phone', 'bill', 'utility'],
+        'Rent/Mortgage': ['rent', 'mortgage', 'lease'],
+        'Healthcare': ['doctor', 'pharmacy', 'medicine', 'hospital', 'dentist', 'health'],
+        'Insurance': ['insurance'],
+        'Subscriptions': ['subscription', 'netflix', 'spotify', 'youtube', 'apple', 'membership'],
+        'Salary': ['salary', 'paycheck', 'wage', 'income'],
+        'Freelance': ['freelance', 'project', 'client', 'invoice'],
+        'Investments': ['invest', 'dividend', 'stock', 'crypto'],
+        'Gifts': ['gift', 'present', 'birthday'],
+        'Refund': ['refund', 'return', 'cashback'],
       };
 
       for (const [catName, keywords] of Object.entries(categoryKeywords)) {
